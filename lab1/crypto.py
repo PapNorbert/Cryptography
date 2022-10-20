@@ -12,7 +12,6 @@ import utils
 
 
 # Caesar Cipher
-
 def encrypt_caesar(plaintext):
     """Encrypt plaintext using a Caesar cipher.
     """
