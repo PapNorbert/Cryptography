@@ -54,6 +54,12 @@ def decrypt_caesar(ciphertext):
 def encrypt_vigenere(plaintext, keyword):
     """Encrypt plaintext using a Vigenere cipher with a keyword.
     """
+    if len(plaintext) < 1 or len(keyword) < 1:
+        return 'Both parameters should have minimum length of 1!\nCould not encrypt'
+
+    plaintext = plaintext.upper()
+    keyword = keyword.upper()
+
     encryptedtext = ""
     AAscii = ord('A')
     ZAscii = ord('Z')
@@ -70,6 +76,11 @@ def encrypt_vigenere(plaintext, keyword):
 def decrypt_vigenere(ciphertext, keyword):
     """Decrypt ciphertext using a Vigenere cipher with a keyword.
     """
+    if len(ciphertext) < 1 or len(keyword) < 1:
+        return 'Both parameters should have minimum length of 1!\nCould not decrypt'
+    ciphertext = ciphertext.upper()
+    keyword = keyword.upper()
+
     decryptedtext = ""
     AAscii = ord('A')
     ZAscii = ord('Z')
@@ -86,6 +97,15 @@ def decrypt_vigenere(ciphertext, keyword):
 def encrypt_scytale(plaintext, circumference):
     """Decrypt ciphertext using a Scytale cipher with a circumference(number).
     """
+    try:
+        circumference = int(circumference)
+    except:
+        return 'The second parameter(circumference) needs to be a number greater than 0!\n Could not encrypt'
+
+    if circumference < 1:
+        return 'The second parameter(circumference) needs to be a number greater than 0!\n Could not encrypt'
+    if len(plaintext) < 1:
+        return 'The text should have minimum length of 1!\nCould not encrypt'
     encryptedtext = []
     for i in range(circumference):
         encryptedtext.extend([plaintext[i::circumference]])
@@ -96,6 +116,15 @@ def encrypt_scytale(plaintext, circumference):
 def decrypt_scytale(ciphertext, circumference):
     """Decrypt ciphertext using a Scytale cipher with a circumference(number).
     """
+    if len(ciphertext) < 1:
+        return 'The text should have minimum length of 1!\nCould not decrypt'
+    try:
+        circumference = int(circumference)
+    except:
+        return 'The second parameter(circumference) needs to be a number greater than 0!\n Could not encrypt'
+    if circumference < 1:
+        return 'The second parameter(circumference) needs to be a number greater than 0!\n Could not decrypt'
+
     decryptedtext = ""
     newCircumference = len(ciphertext) // circumference
     fullColumns = circumference
@@ -125,6 +154,15 @@ def decrypt_scytale(ciphertext, circumference):
 
 
 def encrypt_railfence(plaintext, num_rails):
+    if len(plaintext) < 1:
+        return 'The text should have minimum length of 1!\nCould not encrypt'
+    try:
+        num_rails = int(num_rails)
+    except:
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not encrypt'
+    if num_rails < 1:
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not encrypt'
+
     encryptedtext = ""
     rail = [['--' for _ in range(len(plaintext))]
             for _ in range(num_rails)]
@@ -151,6 +189,15 @@ def encrypt_railfence(plaintext, num_rails):
 
 
 def decrypt_railfence(ciphertext, num_rails):
+    if len(ciphertext) < 1:
+        return 'The text should have minimum length of 1!\nCould not decrypt'
+    try:
+        num_rails = int(num_rails)
+    except:
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not decrypt'
+    if num_rails < 1:
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not decrypt'
+
     decryptedtext = ""
     rail = [['--' for _ in range(len(ciphertext))]
             for _ in range(num_rails)]
