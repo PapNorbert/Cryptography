@@ -49,6 +49,25 @@ def decrypt_caesar(ciphertext):
     return decryptedtext
 
 
+def encrypt_caesar_ascii(plaintext):
+    """Encrypt plaintext containing any ASCII caracters using a Caesar cipher.
+    """
+    encryptedtext = ""
+    for character in plaintext:
+        encryptedtext += chr((ord(character) + 3) % 256)
+
+    return encryptedtext
+
+
+def decrypt_caesar_ascii(ciphertext):
+    """Decrypt a ciphertext containing any ASCII caracters using a Caesar cipher.
+    """
+    decryptedtext = ""
+    for character in ciphertext:
+        decryptedtext += chr((ord(character) - 3) % 256)
+    return decryptedtext
+
+
 # Vigenere Cipher
 
 def encrypt_vigenere(plaintext, keyword):
@@ -94,7 +113,7 @@ def decrypt_vigenere(ciphertext, keyword):
     return decryptedtext
 
 
-def encrypt_scytale(plaintext, circumference):
+def encrypt_scytale(plaintext, circumference, binary=False):
     """Decrypt ciphertext using a Scytale cipher with a circumference(number).
     """
     try:
@@ -110,10 +129,12 @@ def encrypt_scytale(plaintext, circumference):
     for i in range(circumference):
         encryptedtext.extend([plaintext[i::circumference]])
         # the circumference-th element starting from i
+    if binary:
+        return b''.join(encryptedtext)
     return "".join(encryptedtext)
 
 
-def decrypt_scytale(ciphertext, circumference):
+def decrypt_scytale(ciphertext, circumference, binary=False):
     """Decrypt ciphertext using a Scytale cipher with a circumference(number).
     """
     if len(ciphertext) < 1:
@@ -126,6 +147,9 @@ def decrypt_scytale(ciphertext, circumference):
         return 'The second parameter(circumference) needs to be a number greater than 0!\n Could not decrypt'
 
     decryptedtext = ""
+    if binary:
+        decryptedtext = bytearray(b'')
+
     newCircumference = len(ciphertext) // circumference
     fullColumns = circumference
     if (len(ciphertext) % circumference) != 0:
@@ -148,7 +172,10 @@ def decrypt_scytale(ciphertext, circumference):
             columnRange = fullColumns
         for j in range(columnRange):
             # j- number of columns
-            decryptedtext += ciphertext[i + j * newCircumference - differences[j]]
+            if binary:
+                decryptedtext.append(ciphertext[i + j * newCircumference - differences[j]])
+            else:
+                decryptedtext += ciphertext[i + j * newCircumference - differences[j]]
 
     return decryptedtext
 
@@ -159,9 +186,9 @@ def encrypt_railfence(plaintext, num_rails):
     try:
         num_rails = int(num_rails)
     except:
-        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not encrypt'
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n Could not encrypt'
     if num_rails < 1:
-        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not encrypt'
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n Could not encrypt'
 
     encryptedtext = ""
     rail = [['--' for _ in range(len(plaintext))]
@@ -194,9 +221,9 @@ def decrypt_railfence(ciphertext, num_rails):
     try:
         num_rails = int(num_rails)
     except:
-        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not decrypt'
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n Could not decrypt'
     if num_rails < 1:
-        return 'The second parameter(number of rails) needs to be a number greater than 0!\n! Could not decrypt'
+        return 'The second parameter(number of rails) needs to be a number greater than 0!\n Could not decrypt'
 
     decryptedtext = ""
     rail = [['--' for _ in range(len(ciphertext))]

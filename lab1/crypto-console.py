@@ -12,7 +12,8 @@ import random
 from crypto import (encrypt_caesar, decrypt_caesar,
                     encrypt_vigenere, decrypt_vigenere,
                     encrypt_scytale, decrypt_scytale,
-                    encrypt_railfence, decrypt_railfence)
+                    encrypt_railfence, decrypt_railfence,
+                    encrypt_caesar_ascii, decrypt_caesar_ascii)
 
 
 #############################
@@ -21,7 +22,7 @@ from crypto import (encrypt_caesar, decrypt_caesar,
 
 def get_tool():
     print("* Tool *")
-    return _get_selection("(C)aesar, (V)igenere, (S)cytale or (R)ailfence? ", "CVSR")
+    return _get_selection("(C)aesar, (A)scii Caesar,(V)igenere, (B)inary Scytale, (S)cytale or (R)ailfence? ", "CAVBSR")
 
 
 def get_action():
@@ -66,9 +67,13 @@ def set_output(output, binary=False):
         flags = 'w'
         if binary:
             flags += 'b'
-        with open(filename, flags) as outfile:
-            print("Writing data to {}...".format(filename))
-            outfile.write(output)
+            with open(filename, flags) as outfile:
+                print("Writing data to {}...".format(filename))
+                outfile.write(output)
+        else:
+            with open(filename, flags, encoding="utf-8") as outfile:
+                print("Writing data to {}...".format(filename))
+                outfile.write(output)
 
 
 def _get_selection(prompt, options):
@@ -139,7 +144,8 @@ def run_scytale():
     print("* Transform *")
     circumference = input("Circumference? (number) ")
 
-    print("{}crypting {} using Scytale cipher and circumference {}...".format('En' if encrypting else 'De', data, circumference))
+    print("{}crypting {} using Scytale cipher and circumference {}...".format('En' if encrypting else 'De', data,
+                                                                              circumference))
 
     output = (encrypt_scytale if encrypting else decrypt_scytale)(data, circumference)
 
@@ -147,7 +153,48 @@ def run_scytale():
 
 
 def run_railfence():
-    return
+    action = get_action()
+    encrypting = action == 'E'
+    data = get_input(binary=False)
+
+    print("* Transform *")
+    num_rails = input("Number of rails? ")
+
+    print("{}crypting {} using Railfence cipher and number of rails: {} ...".format('En' if encrypting else 'De', data,
+                                                                                    num_rails))
+
+    output = (encrypt_railfence if encrypting else decrypt_railfence)(data, num_rails)
+
+    set_output(output)
+
+
+def run_caesar_ascii():
+    action = get_action()
+    encrypting = action == 'E'
+    data = get_input(binary=False)
+
+    print("* Transform *")
+    print("{}crypting {} using ASCII Caesar cipher ...".format('En' if encrypting else 'De', data))
+
+    output = (encrypt_caesar_ascii if encrypting else decrypt_caesar_ascii)(data)
+
+    set_output(output)
+
+
+def run_scytale_binary():
+    action = get_action()
+    encrypting = action == 'E'
+    data = get_input(binary=True)
+
+    print("* Transform *")
+    circumference = input("Circumference? (number) ")
+
+    print("{}crypting  using Scytale cipher for binary file with circumference: {} ...".format(
+        'En' if encrypting else 'De', circumference))
+
+    output = (encrypt_scytale if encrypting else decrypt_scytale)(data, circumference, True)
+
+    set_output(output, binary=True)
 
 
 def run_suite():
@@ -163,9 +210,11 @@ def run_suite():
     # but I thought it was too cool to not sneak in here!
     commands = {
         'C': run_caesar,  # Caesar Cipher
+        'A': run_caesar_ascii,
         'V': run_vigenere,  # Vigenere Cipher
-        'S': run_scytale,
-        'R': run_railfence,
+        'S': run_scytale,  # Scytale Cipher
+        'R': run_railfence,  # Railfence Cipher
+        'B': run_scytale_binary,
     }
     commands[tool]()
 
