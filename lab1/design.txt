@@ -1,14 +1,26 @@
-Name: <YOUR NAME>
-SUNet: <SUNet ID>
+Name: Pap Norbert-Raymond
+pnim2069
 
-In 1-3 sentences per section, comment on your approach to each of the parts of the assignment. What was your high-level strategy? How did you translate that into code? Did you make use of any Pythonic practices? We want you to reflect on your coding style, and whether you're making full use of the utilities provides.
+In 1-3 sentences per section, comment on your approach to each of the parts of the assignment. What was your high-level strategy?
+How did you translate that into code? Did you make use of any Pythonic practices? We want you to reflect on your coding style,
+and whether you're making full use of the utilities provides.
 
 
 # Caesar Cipher
-
+I changed the ascii code of the letters by adding or subtracting 3 from it, and making sure it remains in the right interval
 
 # Vigenere Cipher
+Just like in the Caesar cipher I changed the ascii code of the characters, but this time O added the ascii code of the keyword letter
+going forward with the letters in the keyword, using a modulo with it's length
 
+# Scytale Cipher
+I selected every circumference-th character in the text, starting from the 0 index through circumference-th.
+In decrypting I used the same method, changing the circumference with len(ciphertext) // circumference.
+In the case, where the modulo of this is not 0 I needed to add 1 to the new circumference, and needed to take in consideration,
+that there were not full rows during encryption, so I needed to leave these empty during decryption as well, which resulted in some
+shifts
 
-# Merkle-Hellman Knapsack Cryptosystem
-
+# Railfence Cipher
+I constructed the matrix using the Railfence pattern, and got the encrypted/decrypted text from the matrix. During encryption, I populated
+the matrix along the pattern, and I read it by rows, and during decryption I did the oposite, populationg the matrix by rows and reading
+it along the pattern
