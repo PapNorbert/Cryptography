@@ -122,3 +122,73 @@ def decrypt_scytale(ciphertext, circumference):
             decryptedtext += ciphertext[i + j * newCircumference - differences[j]]
 
     return decryptedtext
+
+
+def encrypt_railfence(plaintext, num_rails):
+    encryptedtext = ""
+    rail = [['--' for _ in range(len(plaintext))]
+            for _ in range(num_rails)]
+    # creating the rail in a matrix
+    down = True  # direction
+    row = 0
+    col = 0
+    # put the letters on their place
+    for letter in plaintext:
+        rail[row][col] = letter
+        col += 1
+        if down:
+            row += 1
+        else:
+            row -= 1
+        if row == 0 or row == num_rails - 1:
+            down = not down
+    # read the text by each row
+    for row in range(num_rails):
+        for col in range(len(plaintext)):
+            if rail[row][col] != '--':
+                encryptedtext += rail[row][col]
+    return encryptedtext
+
+
+def decrypt_railfence(ciphertext, num_rails):
+    decryptedtext = ""
+    rail = [['--' for _ in range(len(ciphertext))]
+            for _ in range(num_rails)]
+    down = True  # direction
+    row = 0
+    col = 0
+    # mark the places where letters need to go
+    for _letter in ciphertext:
+        rail[row][col] = '-'
+        col += 1
+        if down:
+            row += 1
+        else:
+            row -= 1
+        if row == 0 or row == num_rails - 1:
+            down = not down
+
+    ind = 0
+    # place the letter by each row
+    for row in range(num_rails):
+        for col in range(len(ciphertext)):
+            if rail[row][col] != '--':
+                rail[row][col] = ciphertext[ind]
+                ind += 1
+
+    # read the text by columns 
+    down = True
+    row = 0
+    col = 0
+    # mark the places where letters need to go
+    while col < len(ciphertext):
+        decryptedtext += rail[row][col]
+        col += 1
+        if down:
+            row += 1
+        else:
+            row -= 1
+        if row == 0 or row == num_rails - 1:
+            down = not down
+
+    return decryptedtext
