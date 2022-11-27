@@ -1,4 +1,4 @@
-def de_encrypt(text, keyGenerator, key):
+def encrypt(text, keyGenerator, key):
     newText = ''
     seed = key
     for simbol in text:
@@ -8,7 +8,12 @@ def de_encrypt(text, keyGenerator, key):
             seed, randValue = blumBlumShub(seed)
         newCharacter = chr(ord(simbol) ^ randValue)
         newText += newCharacter
-    return newText
+
+    # return the encrypted text and the new key after the changes
+    if keyGenerator == 'solitaire':
+        return newText, key
+    else:
+        return newText, seed
 
 
 # returns a random number between 0-255
@@ -157,52 +162,3 @@ def getText(filename):
     text = inFile.read()
     inFile.close()
     return text
-
-# def main():
-#     # encrypt
-#     keyGenerator, key = readConfiguration('configuration.txt')
-#     if keyGenerator == 'solitaire':
-#         processedKey = processKey(key)
-#         if not processedKey:
-#             print("Wrong key format")
-#         else:
-#             text = getText("szoveg.txt")
-#             encryptedText = encrypt(text, keyGenerator, processedKey)
-#             out = open("crypted.txt", "w", encoding='latin-1')
-#             out.write(encryptedText)
-#             out.close()
-#     else:  # blum-blum-shub
-#         if not key.isdigit():
-#             print("Wrong key format")
-#         else:
-#             text = getText("szoveg.txt")
-#             encryptedText = encrypt(text, keyGenerator, key)
-#             out = open("crypted.txt", "w", encoding='latin-1')
-#             out.write(encryptedText)
-#             out.close()
-#
-#     # decrypt
-#     keyGenerator, key = readConfiguration('configuration.txt')
-#     if keyGenerator == 'solitaire':
-#         processedKey = processKey(key)
-#         if not processedKey:
-#             print("Wrong key format")
-#         else:
-#             text = getText("crypted.txt")
-#             encryptedText = encrypt(text, keyGenerator, processedKey)
-#             out = open("decrypted.txt", "w", encoding='latin-1')
-#             out.write(encryptedText)
-#             out.close()
-#     else:  # blum-blum-shub
-#         if not key.isdigit():
-#             print("Wrong key format")
-#         else:
-#             text = getText("crypted.txt")
-#             encryptedText = encrypt(text, keyGenerator, key)
-#             out = open("decrypted.txt", "w", encoding='latin-1')
-#             out.write(encryptedText)
-#             out.close()
-#
-#
-# if __name__ == '__main__':
-#     main()
