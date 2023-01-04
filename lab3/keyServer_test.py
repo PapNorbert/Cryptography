@@ -35,7 +35,7 @@ def test_keyServer_register_error_no_key():
 def test_keyServer_register_ok():
     testSocket = socket(AF_INET, SOCK_STREAM)
     testSocket.connect((host, keyServerPort))
-    testSocket.send('REGISTER 8001 55'.encode())
+    testSocket.send('REGISTER 8001 [10, 12, 40, 96, 212, 710, 2104, 5534]'.encode())
     resp = testSocket.recv(1024).decode()
     assert resp == "Registered successfully"
 
@@ -61,7 +61,7 @@ def test_keyServer_get_ok():
     testSocket.connect((host, keyServerPort))
     testSocket.send('GET 8001'.encode())
     resp = testSocket.recv(1024).decode()
-    assert resp == "55"
+    assert resp == "[10, 12, 40, 96, 212, 710, 2104, 5534]"
 
 
 def test_keyServer_get_error_no_id():

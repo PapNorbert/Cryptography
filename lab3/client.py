@@ -3,6 +3,8 @@ import sys
 import threading
 from socket import *
 
+from lab3.knapsack import generate_private_key_knapsack, create_public_key_knapsack
+
 
 class MyThread(threading.Thread):
     def __init__(self, threadID, clientSocket, host, port, keyServerPort):
@@ -39,8 +41,9 @@ def main():
         host = "127.0.0.1"
         keyServerPort = 8000
 
-        myKey = generateMyKey()
-        registerToKeyServer(host, keyServerPort, myPort, myKey)
+        privateKey = generate_private_key_knapsack()
+        publicKey = create_public_key_knapsack(privateKey)
+        registerToKeyServer(host, keyServerPort, myPort, publicKey)
 
         thread = -1
         secondPort = -1
@@ -81,10 +84,6 @@ def main():
         print('Please specifie own port number')
     except ValueError:
         print('First parameter must be a number, own port number')
-
-
-def generateMyKey():
-    return 223
 
 
 def registerToKeyServer(host, keyServerPort, myPort, myKey):

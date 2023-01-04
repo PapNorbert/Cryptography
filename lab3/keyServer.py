@@ -40,7 +40,7 @@ def runServer():
 def registerClient(msg, clientKeys, connection):
     print("KeyServer: Got request to register new client key")
     try:
-        _registerCommand, clientId, clientKey = msg.split(" ")
+        _registerCommand, clientId, clientKey = msg.split(" ", 2)  # needs to split the msg 2 times
         if clientId in clientKeys.keys():
             print("KeyServer: Updated key of client with id", clientId, sep=" ")
         else:
