@@ -1,3 +1,6 @@
+from random import randint
+
+
 # returns a random number between 0-255
 def solitaireRandomNumber(key):
     # card numbering:
@@ -70,3 +73,44 @@ def cutFromNWithoutLast(key, n):
     if n == 54:
         n = 53  # value of black joker is 54, we need to leave that card in place if it's last
     key[:-1] = key[n:-1] + key[:n]
+
+
+def checkSolitaireKey(key):
+    i = 1
+    while i <= 54:
+        if key.count(i) == 1:
+            i += 1
+        else:
+            return False
+    return True
+
+
+def generate_half_solitaire_key():
+    key = []
+    nrAdded = 0
+    while nrAdded < 27:
+        randNumber = randint(1, 54)
+        if randNumber not in key:
+            key.append(randNumber)
+            nrAdded += 1
+    return key
+
+
+def generate_second_half_solitaire_key(key):
+    allKeyValues = [x for x in range(1, 55)]
+    for value in key:
+        allKeyValues.remove(value)
+    while len(key) != 54:
+        randNumber = randint(0, len(allKeyValues) - 1)
+        newValue = allKeyValues.pop(randNumber)
+        key.append(newValue)
+
+
+def en_decrypt_solitaire(text, key):
+    newText = ''
+    for simbol in text:
+        randValue = solitaireRandomNumber(key)
+        newCharacter = chr(ord(simbol) ^ randValue)
+        newText += newCharacter
+    return newText, key
+
