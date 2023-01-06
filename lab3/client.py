@@ -5,7 +5,7 @@ from socket import *
 from ast import literal_eval
 from knapsack import generate_private_key_knapsack, create_public_key_knapsack, encrypt_mh, decrypt_mh
 from solitaire import checkSolitaireKey, generate_half_solitaire_key, generate_second_half_solitaire_key, \
-     en_decrypt_solitaire
+    en_decrypt_solitaire
 
 host = '127.0.0.1'
 keyServerPort = 8000
@@ -36,8 +36,19 @@ class MyThread(threading.Thread):
 
             print('Starting conversation using solitaire encryption')
 
-            # TODO : sending receiveing - read text
-
+            sending = True
+            while sending:
+                text = input('Text to send:\n\t')
+                print('Sending text: ', text)
+                self.solitaireKey = sendMessageSolitaire(self.clientSocket, text, self.solitaireKey)
+                if text.lower() == 'exit':
+                    sending = False
+                    print('Stopping communication')
+                else:
+                    decryptedResp, self.solitaireKey = receiveMessageSoltaire(self.clientSocket, self.solitaireKey)
+                    if decryptedResp.lower() == 'exit':
+                        sending = False
+                        print('Stopping communication')
         except Exception as exception:
             print(exception)
 
@@ -47,42 +58,29 @@ class MyThread(threading.Thread):
 
     def establishConnectionInitializer(self):
         print('Establishing connection with client', self.otherClientPort)
-        message = 'Hello from ' + self.myPort
+        message = 'Hello from ' + str(self.myPort)
         print('Sending:', message)
-        self.sendMessageMh(message)
+        sendMessageMh(self.clientSocket, message, self.otherClientPort, self.otherClientpublicKey)
 
         # agreeing on solitaire key
-        decryptedResponse = self.receiveMessageMh()
+        decryptedResponse = receiveMessageMh(self.clientSocket, self.privateKey)
         print('Generating second half of solitaire key')
         self.solitaireKey = literal_eval(decryptedResponse)
         generate_second_half_solitaire_key(self.solitaireKey)
         solitaireKeyString = '[' + ', '.join(str(x) for x in self.solitaireKey) + ']'
         print('Sending the solitaire key to client', self.otherClientPort, ':', solitaireKeyString)
-        self.sendMessageMh(solitaireKeyString)
+        sendMessageMh(self.clientSocket, solitaireKeyString, self.otherClientPort, self.otherClientpublicKey)
 
-        decryptedResponse = self.receiveMessageMh()
+        decryptedResponse = receiveMessageMh(self.clientSocket, self.privateKey)
         if decryptedResponse == 'OK':
             print('Agreed on solitaire key:\n\t', self.solitaireKey)
-
-    def sendMessageMh(self, message):
-        print('Encrypting message with the public key of client', self.otherClientPort)
-        messageEncoded = encrypt_mh(message, self.otherClientpublicKey)
-        print('Sending message encrypted with the public key of client', self.otherClientPort)
-        self.clientSocket.send(messageEncoded.encode())
-
-    def receiveMessageMh(self):
-        response = literal_eval(self.clientSocket.recv(1024).decode)
-        print('Decrypting message with own private key')
-        decryptedResponse = decrypt_mh(response, self.privateKey)
-        print('Got message', decryptedResponse)
-        return decryptedResponse
 
 
 # run: client.py myPort
 def main():
     try:  # 1st paramter - own port number
         myPort = int(sys.argv[1])
-
+        print('Client with id', myPort, 'started')
         privateKey = generate_private_key_knapsack()
         publicKey = create_public_key_knapsack(privateKey)
         registerToKeyServer(myPort, publicKey)
@@ -103,7 +101,7 @@ def main():
             thread.start()
 
         mySocket = socket(AF_INET, SOCK_STREAM)
-        mySocket.settimeout(10)
+        mySocket.settimeout(20)
         try:
             mySocket.bind((host, myPort))
             print('Listening on my socket at port ', myPort)
@@ -112,11 +110,7 @@ def main():
             print('Other client connected to my socket')
 
             # receiveing message - establishing connenction
-            encryptedMessage = literal_eval(connection.recv(1024).decode())
-            # converting string to list of int with literal_eval
-            print('Decrypting message with own private key')
-            message = decrypt_mh(encryptedMessage, privateKey)
-            print('Got message', message)
+            message = receiveMessageMh(connection, privateKey)
             # getting other client port and public key
             otherClientPort = message.split(' ')[2]
             otherClientPublicKey = getOtherClientPublicKey(otherClientPort)
@@ -126,42 +120,38 @@ def main():
             solitaireKey = generate_half_solitaire_key()
             solitaireKeyString = '[' + ', '.join(str(x) for x in solitaireKey) + ']'
             print('Sending:', solitaireKeyString)
-            print('Encrypting response with the public key of client', otherClientPort)
-            encryptedSolitaireKey = encrypt_mh(solitaireKeyString, otherClientPublicKey)
-            print('Sending message encrypted with the public key of client', otherClientPort)
-            connection.send(encryptedSolitaireKey.encode())
+            sendMessageMh(connection, solitaireKeyString, otherClientPort, otherClientPublicKey)
 
             # got the solitaire key
-            encryptedMessage = literal_eval(connection.recv(1024).decode())
-            # converting string to list of int with literal_eval
-            print('Decrypting message with own private key')
-            message = decrypt_mh(encryptedMessage, privateKey)
-            print('Got message', message)
-            solitaireKey = literal_eval(message)
+            solitaireKey = literal_eval(receiveMessageMh(connection, privateKey))
             if checkSolitaireKey(solitaireKey):
                 # solitaire key is correct
                 print('Agreed on solitaire key:\n\t', solitaireKey)
                 print('Sending: OK')
-                print('Encrypting response with the public key of client', otherClientPort)
-                encryptedResponse = encrypt_mh('OK', otherClientPublicKey)
-                print('Sending message encrypted with the public key of client', otherClientPort)
-                connection.send(encryptedResponse.encode())
+                sendMessageMh(connection, 'OK', otherClientPort, otherClientPublicKey)
 
                 print('Starting conversation using solitaire encryption')
 
-                # TODO : sending receiveing - read text
+                exiting = False
+                while not exiting:
+                    decryptedMsg, solitaireKey = receiveMessageSoltaire(connection, solitaireKey)
+                    if decryptedMsg.lower() == 'exit':
+                        exiting = True
+                        print('Stopping communication')
+                    else:
+                        text = input('Answer:\n\t')
+                        print('Sending text: ', text)
+                        solitaireKey = sendMessageSolitaire(connection, text, solitaireKey)
+                        if text.lower() == 'exit':
+                            exiting = True
+                            print('Stopping communication')
 
             else:
                 errorMessage = 'Got wrong solitaire key, connection could not be established with client ' \
-                               + otherClientPort
+                               + str(otherClientPort)
                 print(errorMessage)
                 print('Sending:', errorMessage)
-                print('Encrypting response with the public key of client', otherClientPort)
-                encryptedResponse = encrypt_mh(errorMessage, otherClientPublicKey)
-                print('Sending message encrypted with the public key of client', otherClientPort)
-                connection.send(encryptedResponse.encode())
-
-            mySocket.close()
+                sendMessageMh(connection, errorMessage, otherClientPort, otherClientPublicKey)
 
         except TimeoutError:
             # print('\t\tTimeout on own socket')
@@ -179,8 +169,9 @@ def main():
 def registerToKeyServer(myPort, myKey):
     keyServerSocket = socket(AF_INET, SOCK_STREAM)
     keyServerSocket.connect((host, keyServerPort))
-    print('Registering to keyServer')
-    message = 'REGISTER ' + myPort + ' ' + myKey
+    print('Registering to keyServer with key', myKey)
+    myKeyString = '[' + ', '.join(str(x) for x in myKey) + ']'
+    message = 'REGISTER ' + str(myPort) + ' ' + myKeyString
     keyServerSocket.send(message.encode())
     response = keyServerSocket.recv(1024).decode()
     print('Got response:', response)
@@ -189,12 +180,46 @@ def registerToKeyServer(myPort, myKey):
 def getOtherClientPublicKey(otherClientPort):
     keyServerSocket = socket(AF_INET, SOCK_STREAM)
     keyServerSocket.connect((host, keyServerPort))
-    request = 'GET ' + otherClientPort
+    request = 'GET ' + str(otherClientPort)
     print('Requesting the public key of client', otherClientPort)
     keyServerSocket.send(request.encode())
     otherClientpublicKey = keyServerSocket.recv(1024).decode()
     keyServerSocket.close()
-    return otherClientpublicKey
+    return literal_eval(otherClientpublicKey)
+
+
+def sendMessageMh(clientSocket, message, otherClientPort, otherClientpublicKey):
+    print('Encrypting message with the public key of client', otherClientPort)
+    messageEncoded = encrypt_mh(message, otherClientpublicKey)
+    # converting list of int to string
+    messageEncodedString = '[' + ', '.join(str(x) for x in messageEncoded) + ']'
+    print('Sending message encrypted with the public key of client', otherClientPort)
+    clientSocket.send(messageEncodedString.encode())
+
+
+def receiveMessageMh(clientSocket, privateKey):
+    # converting string to list of int with literal_eval
+    response = literal_eval(clientSocket.recv(10240).decode())
+    print('Decrypting message with own private key')
+    decryptedResponse = decrypt_mh(response, privateKey)
+    print('Got message', decryptedResponse)
+    return decryptedResponse
+
+
+def sendMessageSolitaire(clientSocket, message, solitaireKey):
+    print('Encrypting message with solitaire key')
+    messageEncoded, solitaireKey = en_decrypt_solitaire(message, solitaireKey)
+    print('Sending message encrypted with with solitaire key')
+    clientSocket.send(messageEncoded.encode())
+    return solitaireKey
+
+
+def receiveMessageSoltaire(clientSocket, solitaireKey):
+    response = clientSocket.recv(10240).decode()
+    print('Decrypting message with with solitaire key')
+    decryptedResponse, solitaireKey = en_decrypt_solitaire(response, solitaireKey)
+    print('Got message', decryptedResponse)
+    return decryptedResponse, solitaireKey
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ def runServer():
     myPort = 8000
     host = "127.0.0.1"
     mySocket = socket(AF_INET, SOCK_STREAM)
-    mySocket.settimeout(10)
+    mySocket.settimeout(60)
     clientKeys = {}
     try:
         mySocket.bind((host, myPort))
