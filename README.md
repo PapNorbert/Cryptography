@@ -8,29 +8,29 @@ It provides a comprehensive Python implementation of classic cryptographic syste
 The repository structure is as follows:
 
 1. **lab1**
-    - `Caesar cipher`: Contains the implementation of the Caesar cipher algorithm.
-    - `Vigenère cipher`: Contains the implementation of the Vigenère cipher algorithm.
-    - `Scytale cipher`: Contains the implementation of the Scytale cipher algorithm.
-    - `Railfence cipher`: Contains the implementation of the Railfence cipher algorithm.
-    - Console Menu: Provides a console-based menu for easy access to each implemented cipher.
+    - **_Caesar cipher_**: Contains the implementation of the Caesar cipher algorithm.
+    - **_Vigenère cipher_**: Contains the implementation of the Vigenère cipher algorithm.
+    - **Scytale cipher**: Contains the implementation of the Scytale cipher algorithm.
+    - **_Railfence cipher_**: Contains the implementation of the Railfence cipher algorithm.
+    - **_Console Menu_**: Provides a console-based menu for easy access to each implemented cipher.
 2. **lab2**
    
-    Lab 2 introduces a `generic byte-sequence ciphering/deciphering stream cipher` that accommodates various key generation algorithms.
-    It implements the `Solitaire algorithm` and another pseudorandom sequence generator, `Blum-Blum-Shub`. 
+    Lab 2 introduces a **_generic byte-sequence ciphering/deciphering stream cipher_** that accommodates various key generation algorithms.
+    It implements the **_Solitaire algorithm_** and another pseudorandom sequence generator, **_Blum-Blum-Shub_**. 
     It also includes a client class that allows two client processes to communicate securely over a network using the stream encryptor.
     It requires a configuration.txt file specifying the desired algorithm - "solitaire" or other - and a key for it.
 
 3. **lab3**
     
-    Lab 3 focuses on implementing a secure communication system in Python based on the `Merkle-Hellman Knapsack cryptosystem` and the `Solitaire algorithm`.
+    Lab 3 focuses on implementing a secure communication system in Python based on the **_Merkle-Hellman Knapsack cryptosystem_** and the **_Solitaire algorithm_**.
     The system consists of two main entities:
-    - `KeyServer`:
+    - **KeyServer**:
     Located at a publicly known address (localhost and a specified port), the KeyServer listens for client requests and responds accordingly. This communication is not 
     Clients can interact with the KeyServer in one of two ways:
       - Requesting their Knapsack public key by sending a client identifier (client_id).
       - Registering with the server by sending their ID and public key. If a client is already registered, its public key will be updated upon a new registration request.
         
-    - `Clients`:
+    - **Clients**:
     At least two different Clients communicate with each other through the KeyServer. The communication process consists of two main steps:
 
       - Key exchange: Clients request each other's public keys from the KeyServer based on their client_id. They then agree on a shared key using the Merkle-Hellman Knapsack cryptosystem.
